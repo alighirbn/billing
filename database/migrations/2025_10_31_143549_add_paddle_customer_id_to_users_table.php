@@ -9,13 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function ($table) {
-            $table->string('paddle_customer_id')->nullable();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('paddle_customer_id')->nullable()->after('email');
+            $table->index('paddle_customer_id');
         });
     }
-
 
     /**
      * Reverse the migrations.
@@ -23,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropIndex(['paddle_customer_id']);
+            $table->dropColumn('paddle_customer_id');
         });
     }
 };
