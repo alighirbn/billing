@@ -37,6 +37,19 @@
                 </div>
             @endif
 
+            <!-- Session Messages -->
+            @if(session('success'))
+                <div class="mb-8 bg-green-500/20 border border-green-500/30 rounded-2xl p-6">
+                    <p class="text-green-400">{{ session('success') }}</p>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-8 bg-red-500/20 border border-red-500/30 rounded-2xl p-6">
+                    <p class="text-red-400">{{ session('error') }}</p>
+                </div>
+            @endif
+
             <!-- Main Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Subscription Status Card -->
@@ -109,9 +122,9 @@
                                             <div class="text-right">
                                                 <p class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">
                                                     @if($subscription->plan === 'monthly')
-                                                        $29
+                                                        $299
                                                     @else
-                                                        $290
+                                                        $2990
                                                     @endif
                                                 </p>
                                                 <p class="text-xs text-gray-500">
@@ -146,16 +159,19 @@
                                         @endif
 
                                         <div class="pt-4 flex gap-3">
-                                            <a href="#" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-white/5 hover:bg-white/10 border border-gray-700/50 rounded-xl text-white font-semibold transition-all duration-300">
+                                            <a href="{{ route('subscription.manage') }}" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-white/5 hover:bg-white/10 border border-gray-700/50 rounded-xl text-white font-semibold transition-all duration-300">
                                                 <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                 </svg>
                                                 Manage Plan
                                             </a>
-                                            <a href="#" class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 font-semibold transition-all duration-300">
-                                                Cancel
-                                            </a>
+                                            <form action="{{ route('subscription.cancel') }}" method="POST" class="flex-1" onsubmit="return confirm('Are you sure you want to cancel your subscription?');">
+                                                @csrf
+                                                <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 font-semibold transition-all duration-300">
+                                                    Cancel
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 @elseif($isPending)
@@ -255,7 +271,7 @@
                                         </svg>
                                     </div>
                                 </a>
-                                <a href="#" class="block p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-gray-700/30 transition-all duration-200 group/item">
+                                <a href="{{ route('subscription.billing-history') }}" class="block p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-gray-700/30 transition-all duration-200 group/item">
                                     <div class="flex items-center justify-between">
                                         <span class="text-sm font-medium text-gray-300 group-hover/item:text-white">Billing History</span>
                                         <svg class="w-4 h-4 text-gray-500 group-hover/item:text-white group-hover/item:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">

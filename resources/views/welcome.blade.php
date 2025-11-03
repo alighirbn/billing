@@ -136,15 +136,47 @@
                             <span class="text-sm font-semibold text-purple-300">Trusted by 10,000+ businesses</span>
                         </div>
 
-                        <!-- Hero Title -->
-                        <h1 class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-blue-200 mb-6 leading-tight animate-slide-up">
-                            Subscription Management<br>Made Simple
-                        </h1>
+<!-- Hero Title -->
+<h1 class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-blue-200 mb-6 leading-tight animate-slide-up">
+    Simple, Secure<br>Cloud Backup
+</h1>
 
-                        <!-- Hero Description -->
-                        <p class="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 animate-slide-up">
-                            Effortlessly manage your subscriptions, billing, and payments in one powerful platform. Get started in minutes.
-                        </p>
+<!-- Hero Description -->
+<p class="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 animate-slide-up">
+    Protect your files, photos, and business data with end-to-end encrypted cloud backup. Lightning-fast restores, zero configuration, and peace of mind — always.
+</p>
+
+<!-- Feature Highlight -->
+<div class="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-lg border border-white/20 animate-slide-up max-w-3xl mx-auto">
+    <h2 class="text-3xl font-extrabold text-white mb-4">2 TB Cloud Backup</h2>
+    <p class="text-gray-300 leading-relaxed mb-6">
+        Your secure space to store what matters. Enjoy encrypted backups, automatic sync, and fast recovery whenever you need it.
+    </p>
+
+    <ul class="grid sm:grid-cols-2 gap-4 text-gray-300 mb-8">
+        <li class="flex items-center space-x-2">
+            <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+            <span>2 TB encrypted cloud storage</span>
+        </li>
+        <li class="flex items-center space-x-2">
+            <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+            <span>Automatic scheduled backups</span>
+        </li>
+        <li class="flex items-center space-x-2">
+            <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+            <span>Fast restore & file recovery</span>
+        </li>
+        <li class="flex items-center space-x-2">
+            <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+            <span>Unlimited devices</span>
+        </li>
+    </ul>
+
+
+</div>
+
+<br>
+
 
                         <!-- CTA Buttons -->
                         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up">

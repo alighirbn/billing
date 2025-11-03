@@ -143,6 +143,7 @@ class PaddleController extends Controller
         Log::info('Paddle webhook received', [
             'event_type' => $request->input('event_type'),
             'ip' => $request->ip(),
+            'full_payload' => $request->all(),
         ]);
 
         if (!$this->verifyWebhookSignature($request)) {
@@ -160,6 +161,7 @@ class PaddleController extends Controller
             'event_type' => $eventType,
             'customer_id' => $data['customer_id'] ?? null,
             'subscription_id' => $data['id'] ?? null,
+            'data' => $data,
         ]);
 
         try {
@@ -186,15 +188,17 @@ class PaddleController extends Controller
                 default:
                     Log::info('Unhandled Paddle webhook event', ['event' => $eventType]);
             }
+
+            return response('OK', 200);
+
         } catch (Exception $e) {
             Log::error('Webhook processing failed', [
                 'event_type' => $eventType,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
-            return response('Error', 500);
+            return response('Error: ' . $e->getMessage(), 500);
         }
-
-        return response('OK', 200);
     }
 
     private function handleTransactionCompleted($data)
@@ -206,35 +210,67 @@ class PaddleController extends Controller
             return;
         }
 
+        // First try to find by paddle_customer_id
         $user = User::where('paddle_customer_id', $customerId)->first();
         
         if (!$user) {
-            Log::warning('Customer not found', ['customer_id' => $customerId]);
+            Log::warning('User not found by paddle_customer_id, checking subscriptions', [
+                'customer_id' => $customerId
+            ]);
+            
+            // Try to find user through subscription
+            $subscription = Subscription::where('paddle_customer_id', $customerId)->first();
+            if ($subscription) {
+                $user = $subscription->user;
+                Log::info('Found user through subscription', ['user_id' => $user->id]);
+            }
+        }
+        
+        if (!$user) {
+            Log::error('Cannot find user for customer', [
+                'customer_id' => $customerId,
+                'transaction_id' => $data['id'] ?? null,
+            ]);
             return;
         }
 
         $subscriptionId = $data['subscription_id'] ?? null;
+        $priceId = $data['items'][0]['price']['id'] ?? '';
+        $plan = $this->detectPlanFromPrice($priceId);
+
+        // Extract billing period if available
+        $billingPeriod = $data['billing_period'] ?? [];
         
+        $subscriptionData = [
+            'paddle_customer_id' => $customerId,
+            'plan' => $plan,
+            'status' => 'active',
+            'meta' => $data,
+        ];
+
         if ($subscriptionId) {
-            $priceId = $data['items'][0]['price']['id'] ?? '';
-            $plan = $this->detectPlanFromPrice($priceId);
-
-            Subscription::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'paddle_subscription_id' => $subscriptionId,
-                    'paddle_customer_id' => $customerId,
-                    'plan' => $plan,
-                    'status' => 'active',
-                    'meta' => $data,
-                ]
-            );
-
-            Log::info('Subscription activated', [
-                'user_id' => $user->id,
-                'subscription_id' => $subscriptionId,
-            ]);
+            $subscriptionData['paddle_subscription_id'] = $subscriptionId;
         }
+
+        if (!empty($billingPeriod['starts_at'])) {
+            $subscriptionData['current_period_start'] = $billingPeriod['starts_at'];
+        }
+
+        if (!empty($billingPeriod['ends_at'])) {
+            $subscriptionData['current_period_end'] = $billingPeriod['ends_at'];
+        }
+
+        Subscription::updateOrCreate(
+            ['user_id' => $user->id],
+            $subscriptionData
+        );
+
+        Log::info('Subscription activated via transaction.completed', [
+            'user_id' => $user->id,
+            'subscription_id' => $subscriptionId,
+            'plan' => $plan,
+            'status' => 'active',
+        ]);
     }
 
     private function handleSubscriptionActivated($data)
@@ -243,13 +279,31 @@ class PaddleController extends Controller
         $subscriptionId = $data['id'] ?? null;
 
         if (!$customerId || !$subscriptionId) {
+            Log::warning('Missing required fields', [
+                'customer_id' => $customerId,
+                'subscription_id' => $subscriptionId,
+            ]);
             return;
         }
 
         $user = User::where('paddle_customer_id', $customerId)->first();
         
         if (!$user) {
-            Log::warning('Subscription for unknown customer', ['customer_id' => $customerId]);
+            Log::warning('Subscription for unknown customer, checking subscriptions table', [
+                'customer_id' => $customerId
+            ]);
+            
+            $subscription = Subscription::where('paddle_customer_id', $customerId)->first();
+            if ($subscription) {
+                $user = $subscription->user;
+            }
+        }
+        
+        if (!$user) {
+            Log::error('Cannot find user for subscription', [
+                'customer_id' => $customerId,
+                'subscription_id' => $subscriptionId,
+            ]);
             return;
         }
 
@@ -273,6 +327,7 @@ class PaddleController extends Controller
             'user_id' => $user->id,
             'subscription_id' => $subscriptionId,
             'status' => $data['status'] ?? 'active',
+            'plan' => $plan,
         ]);
     }
 
@@ -348,6 +403,53 @@ class PaddleController extends Controller
                 }
             }
 
+            // Check if customer already exists
+            $error = $response->json('error');
+            if ($error && ($error['code'] ?? '') === 'customer_already_exists') {
+                // Extract existing customer ID from error message
+                $detail = $error['detail'] ?? '';
+                if (preg_match('/customer of id (ctm_[a-z0-9]+)/i', $detail, $matches)) {
+                    $existingCustomerId = $matches[1];
+                    
+                    Log::info('Customer already exists in Paddle, using existing ID', [
+                        'user_id' => $user->id,
+                        'customer_id' => $existingCustomerId,
+                    ]);
+                    
+                    // Save to user record
+                    $user->update(['paddle_customer_id' => $existingCustomerId]);
+                    
+                    return $existingCustomerId;
+                }
+                
+                // If we can't extract ID, search for customer by email
+                Log::info('Searching for existing customer by email', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                ]);
+                
+                $searchResponse = Http::withToken(env('PADDLE_API_KEY'))
+                    ->withHeaders(['Paddle-Version' => '1'])
+                    ->get($this->api() . '/customers', [
+                        'email' => $user->email,
+                    ]);
+                
+                if ($searchResponse->successful()) {
+                    $customers = $searchResponse->json('data', []);
+                    if (!empty($customers)) {
+                        $customerId = $customers[0]['id'];
+                        $user->update(['paddle_customer_id' => $customerId]);
+                        
+                        Log::info('Found existing customer by email', [
+                            'user_id' => $user->id,
+                            'customer_id' => $customerId,
+                        ]);
+                        
+                        return $customerId;
+                    }
+                }
+            }
+
             Log::warning('Customer creation failed, continuing without customer_id', [
                 'user_id' => $user->id,
                 'error' => $response->json('error'),
@@ -369,6 +471,10 @@ class PaddleController extends Controller
         $secret = env('PADDLE_WEBHOOK_SECRET');
 
         if (!$signature || !$secret) {
+            Log::warning('Missing signature or secret', [
+                'has_signature' => !empty($signature),
+                'has_secret' => !empty($secret),
+            ]);
             return false;
         }
 
@@ -386,11 +492,19 @@ class PaddleController extends Controller
         }
 
         if (!$ts || !$h1) {
+            Log::warning('Incomplete signature components', [
+                'has_ts' => !empty($ts),
+                'has_h1' => !empty($h1),
+            ]);
             return false;
         }
 
         // Check timestamp (not older than 5 minutes)
         if (abs(time() - (int)$ts) > 300) {
+            Log::warning('Signature timestamp too old', [
+                'timestamp' => $ts,
+                'age_seconds' => abs(time() - (int)$ts),
+            ]);
             return false;
         }
 
@@ -398,7 +512,16 @@ class PaddleController extends Controller
         $signedPayload = $ts . ':' . $payload;
         $expected = hash_hmac('sha256', $signedPayload, $secret);
 
-        return hash_equals($expected, $h1);
+        $isValid = hash_equals($expected, $h1);
+        
+        if (!$isValid) {
+            Log::warning('Signature mismatch', [
+                'expected_prefix' => substr($expected, 0, 10),
+                'received_prefix' => substr($h1, 0, 10),
+            ]);
+        }
+
+        return $isValid;
     }
 
     private function detectPlanFromPrice(string $priceId): string
@@ -409,6 +532,8 @@ class PaddleController extends Controller
         if ($priceId === env('PADDLE_ANNUAL_PRICE_ID')) {
             return 'annual';
         }
+        
+        Log::warning('Unknown price ID', ['price_id' => $priceId]);
         return 'unknown';
     }
 }

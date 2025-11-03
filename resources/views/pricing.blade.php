@@ -68,7 +68,7 @@
                             <!-- Price -->
                             <div class="mb-8">
                                 <div class="flex items-baseline">
-                                    <span class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">$29</span>
+                                    <span class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">$299</span>
                                     <span class="text-2xl text-gray-400 ml-2">/month</span>
                                 </div>
                                 <p class="text-sm text-gray-500 mt-2">Billed monthly • Cancel anytime</p>
@@ -169,13 +169,13 @@
                             <!-- Price -->
                             <div class="mb-8">
                                 <div class="flex items-baseline">
-                                    <span class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400">$290</span>
+                                    <span class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400">$2990</span>
                                     <span class="text-2xl text-gray-400 ml-2">/year</span>
                                 </div>
                                 <div class="flex items-center mt-2">
-                                    <span class="text-sm text-gray-500 line-through mr-2">$348/year</span>
+                                    <span class="text-sm text-gray-500 line-through mr-2">$3699/year</span>
                                     <span class="inline-flex items-center px-2 py-1 rounded-full bg-green-500/20 border border-green-500/30 text-xs font-bold text-green-400">
-                                        SAVE $58
+                                        SAVE $600
                                     </span>
                                 </div>
                             </div>
@@ -220,7 +220,7 @@
                                             </svg>
                                         </div>
                                     </div>
-                                    <span class="ml-3 text-gray-300 font-semibold">Save $58 per year</span>
+                                    <span class="ml-3 text-gray-300 font-semibold">Save $1200 per year</span>
                                 </li>
                             </ul>
 
