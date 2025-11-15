@@ -94,10 +94,10 @@
                             <a href="#pricing" class="text-gray-300 hover:text-white transition-colors duration-200 text-sm font-semibold">
                                 Pricing
                             </a>
-                            <a href="#about" class="text-gray-300 hover:text-white transition-colors duration-200 text-sm font-semibold">
+                            <a href="{{ route('about') }}" class="text-gray-300 hover:text-white transition-colors duration-200 text-sm font-semibold">
                                 About
                             </a>
-                        </div>
+                            </div>
 
                         <!-- Auth Buttons -->
                         <div class="flex items-center space-x-4">
@@ -391,10 +391,8 @@
                         <div>
                             <h3 class="text-white font-bold mb-4">Product</h3>
                             <ul class="space-y-2">
-                                <li><a href="#features" class="text-gray-400 hover:text-white transition-colors text-sm">Features</a></li>
-                                <li><a href="{{ route('pricing') }}" class="text-gray-400 hover:text-white transition-colors text-sm">Pricing</a></li>
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Documentation</a></li>
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">API</a></li>
+                                <li><a href="{{ route('documentation') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">Documentation</a></li>
+<li><a href="{{ route('api') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">API</a></li>
                             </ul>
                         </div>
 
@@ -402,10 +400,10 @@
                         <div>
                             <h3 class="text-white font-bold mb-4">Company</h3>
                             <ul class="space-y-2">
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">About</a></li>
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Blog</a></li>
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Careers</a></li>
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Contact</a></li>
+                               <li><a href="{{ route('about') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">About</a></li>
+<li><a href="{{ route('blog') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">Blog</a></li>
+<li><a href="{{ route('careers') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">Careers</a></li>
+<li><a href="{{ route('contact') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">Contact</a></li>
                             </ul>
                         </div>
 
@@ -413,10 +411,11 @@
                         <div>
                             <h3 class="text-white font-bold mb-4">Legal</h3>
                             <ul class="space-y-2">
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Cookie Policy</a></li>
-                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Refund Policy</a></li>
+                                <li><a href="{{ route('privacy') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
+<li><a href="{{ route('terms') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
+<li><a href="{{ route('cookies') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">Cookie Policy</a></li>
+<li><a href="{{ route('refund') }}" class="ext-gray-400 hover:text-white transition-colors text-sm">Refund Policy</a></li>
+                              
                             </ul>
                         </div>
                     </div>

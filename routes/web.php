@@ -416,7 +416,47 @@ Route::get('/fix-paddle-customer-id', function () {
 })->middleware('auth')->name('fix.customer');
 
 
+Route::get('/about', function () {
+    return view('pages.about');
+})->name('about');
 
+Route::get('/blog', function () {
+    return view('pages.blog');
+})->name('blog');
+
+Route::get('/careers', function () {
+    return view('pages.careers');
+})->name('careers');
+
+Route::get('/contact', function () {
+    return view('pages.contact');
+})->name('contact');
+
+// Legal Pages
+Route::get('/privacy-policy', function () {
+    return view('pages.privacy');
+})->name('privacy');
+
+Route::get('/terms', function () {
+    return view('pages.terms');
+})->name('terms');
+
+Route::get('/cookie-policy', function () {
+    return view('pages.cookies');
+})->name('cookies');
+
+Route::get('/refund-policy', function () {
+    return view('pages.refund');
+})->name('refund');
+
+// Product Pages
+Route::get('/documentation', function () {
+    return view('pages.documentation');
+})->name('documentation');
+
+Route::get('/api', function () {
+    return view('pages.api');
+})->name('api');
 
 
 
